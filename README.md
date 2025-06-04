@@ -2,48 +2,74 @@
 
 # DRL vs MVO: Portfolio Allocation Under Market Regimes
 
-This repo is my deep dive into a J.P. Morgan research paper that compares Deep Reinforcement Learning (specifically PPO) with traditional Mean-Variance Optimization (MVO) for portfolio allocation. The idea is simple: can a well-trained agent beat classical portfolio theory in real-world backtests?
+This project is based on a 2023 J.P. Morgan research paper that compares deep reinforcement learning (specifically PPO) with traditional mean-variance optimization (MVO) for portfolio allocation across US equity sectors.
 
-This project aims to faithfully reproduce the paper’s framework — and then extend it in directions that make it more realistic and robust (e.g., transaction cost modeling, regime switching, etc.).
-
----
-
-## What I’m Building
-
-- A custom Gym environment that mimics a portfolio manager allocating across sector ETFs
-- A PPO agent trained on 60-day lookbacks, with Differential Sharpe Ratio as the reward
-- A fully replicable MVO baseline using PyPortfolioOpt and Ledoit-Wolf shrinkage
-- 10-year rolling-window backtesting, multiple seeds per window for robustness
-- Proper regime labeling (low vs high vol), evaluation with Sharpe, Calmar, Drawdown, Turnover, and more
-- Clean codebase designed to be extensible — I want to experiment freely as I go
+The goal is to reproduce their results and then build on top of it. I’m using S&P 500 sector ETFs, SPY, and VIX data from 2006 to 2021 to evaluate both strategies across different market regimes.
 
 ---
 
-## Why This?
+## What this repo includes
 
-I’ve worked on machine learning in finance before, but this time I wanted to go deeper — both technically and statistically. This paper by J.P. Morgan hit the sweet spot: well-scoped, rigorous, and practical. Plus, it opens up tons of interesting questions around stability, risk management, and generalization in volatile markets.
+- A custom Gym environment that simulates portfolio rebalancing
+- PPO agent with Differential Sharpe Ratio as the reward
+- MVO baseline with Ledoit-Wolf covariance shrinkage
+- Rolling-window backtests (10 windows × 5 seeds each)
+- Full evaluation: Sharpe, Calmar, Max Drawdown, Turnover (Δpw), etc.
+- Simple, modular code structure that’s easy to extend
 
 ---
 
-## 💡 Repo Structure
+## Folder structure
 
 drl-portfolio-optimization/
-├── data/ # Yahoo Finance downloads + processed features
-├── notebooks/ # EDA, MVO sanity checks
+│
+├── data/
+│ ├── raw/ # Raw CSVs from Yahoo Finance
+│ └── processed/ # Final processed features (returns, volatility, regime)
+│
+├── notebooks/ # EDA and experimentation notebooks
+│
 ├── src/
-│ ├── env/ # Gym-style trading environment
-│ ├── rl/ # PPO training logic
-│ ├── mvo/ # Mean-Variance Optimizer
-│ ├── eval/ # Sharpe, Calmar, Δpw, plots, Pyfolio stats
-│ └── utils/ # Data pipeline, volatility labeling, helpers
-├── experiments/ # Hyperparameter configs
-├── results/ # Backtest logs, saved agents, figures
-├── docs/ # Mapping code to paper results
-└── main.py # CLI to train/test/backtest
+│ ├── env/ # Custom Gym environment
+│ ├── rl/ # PPO agent, training loop
+│ ├── mvo/ # MVO baseline optimizer
+│ ├── eval/ # Metrics, plotting, Pyfolio wrapper
+│ └── utils/ # Data loading, preprocessing, regime labeling
+│
+├── experiments/ # Configs for training/backtests
+├── results/ # Backtest logs, agent weights, plots
+├── docs/ # Paper reproduction tracking
+├── main.py # CLI entrypoint
+└── requirements.txt
 
 
+---
 
+## Data used
 
+- Sector ETFs: XLF, XLK, XLY, XLI, XLE, XLV, XLB, XLRE, XLU, XLC
+- SPY (S&P 500)
+- ^VIX (volatility index)
+- Time period: 2006 to 2021 (daily)
+- Source: Yahoo Finance (`yfinance`)
+
+---
+
+## Quickstart
+
+```bash
+# Install requirements
+pip install -r requirements.txt
+
+# Step 1: Download and process data
+python src/utils/data_loader.py
+python src/utils/feature_pipeline.py
+
+# Step 2: Train the DRL agent (later)
+python main.py --mode train_drl
+
+# Step 3: Run MVO baseline
+python main.py --mode run_mvo
 
 
 
